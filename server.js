@@ -117,3 +117,33 @@ app.get("/springshare/libguides/:passthrough", (req, res, next) => {
 app.listen(port, () => {
   console.log(`Server is ready on port ${port}.`);
 });
+
+
+//LAMBDA FUNCTION TO KEEP SERVER AWAKE
+
+const https = require('https');
+
+exports.handler = async (event, context) => {
+ const url = 'https://auth-server-for-springshare.onrender.com';
+
+ return new Promise((resolve, reject) => {
+   const req = https.get(url, (res) => {
+     if (res.statusCode === 200) {
+       resolve({
+         statusCode: 200,
+         body: 'Server pinged successfully',
+       });
+     } else {
+       reject(
+         new Error(`Server ping failed with status code: ${res.statusCode}`)
+       );
+     }
+   });
+
+   req.on('error', (error) => {
+     reject(error);
+   });
+
+   req.end();
+ });
+};
